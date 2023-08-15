@@ -1,21 +1,56 @@
 # FileWebServer
-类似于网盘的文件服务器
 
-遇见的问题
-1.上传文件的时候是什么样的请求格式。主要就是用一个boundary进行分割。
+## Introduce
 
-2.将上传的内容进行保存的时候会遇见一些特殊符号，而且不一定是十六进制，但是直接保存就行，注意，一定要全部都直接保存，不需要转换进制编码之类的。
+本项目为C++11编写的文件服务器，使用有限状态机解析HTTP请求，支持用户注册、用户登陆、上传文件、共享文件、改变位置、下载文件，拷贝文件等功能。
 
-3.一开始接收数据的时候，因为数据包会被切分为小个数据集进行发送，所以需要在得到content-length之后进行反复接收，避免保存上传的内容时，因为信息还在网络中，没有接收到，导致结果不可用。
+## Technical points
 
-4.因为是异步发起请求，这就导致了发起请求的连接可能使用的不是之前建立连接的套接字。也就是说是一个新的连接，但是这个新的连接没有登录状态，所以很多操作都是禁用。也就能解释系统的问题。后续改称session就没有问题了。
+- 用状态机解析HTTP 1.1请求报文，支持GET/POST两种请求方式；
+- 采用信号及升序链表管理定时器系统，统一事件源，处理非活动连接；
+- 采用线程池+非阻塞socket+I/O多路复用实现Reactor以及Proactor两种并发模型；
+- 采用连接池，基于MySQL实现用户信息持久化；
+- 采用生产者-消费者模型，实现异步/同步日志系统，记录服务器运行状态；
+- 访问服务器数据库实现用户注册、登录、上传、下载、分享等功能；
 
-5.一般出问题的不在数据上，而在于怎么发送过去。
 
-6.同一个网页上，并不会说只会建立一个连接，为了快速响应页面，同时出现多个连接也不是不可行的。
 
-7.压力测试的时候可以使用webbench，但是记得使用-2的选项，用于模拟HTTP/1.1。
+## Demo演示
+https://github.com/Astronaut-diode/Swan/assets/57606131/d7922c1f-b617-4196-b32c-ddadb2b7ead0
 
-8.测试的时候使用的命令：./webbench -2 --get -c 10000 -t 5 http://localhost:7777/login.html 已经可以实现上万的并发连接，同时QPS可以达到4k。
 
-9.使用gdb 原始文件 core文件进行debug。bt可以查看出错的报错调用情况。类似于内存快照。
+
+## Environment
+
+- OS: Ubuntu 18.04
+- MySQL: 5.7.42
+- Redis: 4.0.9
+- Compiler: g++ 7.5
+- 浏览器测试：Windows、Linux下使用Chrome、Edge、FireFox均可。
+
+
+## Usage
+
+
+1. 创建FileWebServer数据库。
+
+   ``` sql
+   create database FileWebServer character set utf8mb4 collate utf8mb4_unicode_ci;
+   ```
+
+2. ``` shell
+   make # 进行编译
+   ```
+
+3. ``` shell
+   ./FileWebServer
+   ```
+
+8. 浏览器端访问端口号默认使用7777
+   **IP地址:端口号/register.html**进行注册，**IP地址:端口号/login.html**进行登录。
+
+
+## 致谢
+
+[TinyWebServer](https://github.com/qinguoyi/TinyWebServer)
+
