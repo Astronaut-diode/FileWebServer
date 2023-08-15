@@ -48,7 +48,10 @@ https://github.com/Astronaut-lunikhod/FileWebServer/assets/57606131/4cabc998-b52
 
 8. 浏览器端访问端口号默认使用7777
    **IP地址:端口号/register.html**进行注册，**IP地址:端口号/login.html**进行登录。
+   
+## Maintainers
 
+[@Astronaut-diode](https://github.com/Astronaut-diode)
 
 ## 致谢
 
